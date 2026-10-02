@@ -21,6 +21,8 @@ p{color:#63758a;line-height:1.5}
 .dot{display:inline-block;width:11px;height:11px;border-radius:50%;background:#32a56c;margin-right:7px}
 button{width:100%;border:0;border-radius:15px;padding:16px;margin-top:10px;background:#0d4c8c;color:white;font-size:16px;font-weight:bold}
 button.alt{background:#e7eff6;color:#0d4c8c}.nav{margin-top:auto}.stars{font-size:28px;color:#e8ad36}
+
+.request-summary{background:#eef6ff;border:1px solid #cfe2f5;border-radius:18px;padding:16px;margin:12px 0}.request-summary strong{color:#0d4c8c}.demo{font-size:12px;color:#63758a;text-align:center;margin-top:10px}.progress{height:8px;background:#e5edf4;border-radius:20px;overflow:hidden;margin:14px 0}.progress i{display:block;height:100%;width:0;background:#0d4c8c;transition:width .4s}
 </style>
 </head>
 <body>
@@ -37,16 +39,36 @@ button.alt{background:#e7eff6;color:#0d4c8c}.nav{margin-top:auto}.stars{font-siz
 <section id="s2" class="screen"><div class="top"><button class="back" onclick="go('s1')">‹</button><h2>Bienvenue sur LINKA</h2></div><p>En quelques étapes :</p><div class="card"><b>1. Décrivez votre besoin</b><p>Écrivez ou parlez naturellement.</p></div><div class="card"><b>2. Indiquez votre zone</b><p>Ville, quartier, secteur ou adresse. Aucun GPS obligatoire.</p></div><div class="card"><b>3. LINKA recherche</b><p>Nous recherchons un artisan vérifié et disponible près de votre zone.</p></div><button onclick="go('s4')">J’ai compris</button></section>
 <section id="s3" class="screen"><div class="top"><button class="back" onclick="go('s1')">‹</button><h2>Comment ça marche ?</h2></div><div class="card"><b>Décrivez</b><p>« J’ai besoin d’un réparateur de pompe à Karpala. »</p></div><div class="card"><b>Indiquez votre zone</b><p>Vous choisissez vous-même les informations de localisation. LINKA n’utilise pas votre GPS.</p></div><div class="card"><b>Attendez la mise en relation</b><p>Un artisan est contacté à la fois. Refus ou absence de réponse : recherche automatique du suivant.</p></div><button onclick="go('s4')">Faire une demande</button></section>
 <section id="s4" class="screen"><div class="top"><button class="back" onclick="go('s1')">‹</button><h2>Nouvelle demande</h2></div><p>Décrivez votre besoin avec vos propres mots.</p><div class="field"><textarea id="need" placeholder="Ex. J’ai besoin d’un réparateur de pompe à Karpala..."></textarea></div><button class="alt" onclick="voice()">🎙️ Parler</button><button onclick="go('s5')">Continuer</button></section>
-<section id="s5" class="screen"><div class="top"><button class="back" onclick="go('s4')">‹</button><h2>Votre zone</h2></div><p>Indiquez où se trouve le besoin. Pas besoin d’activer le GPS.</p><div class="field"><b>Ville</b><br>Ouagadougou</div><div class="field"><b>Quartier / secteur</b><br>Karpala</div><div class="field"><b>Adresse ou repère</b><br>À préciser si nécessaire</div><button onclick="go('s6')">Envoyer ma demande</button></section>
-<section id="s6" class="screen"><h2>Demande reçue</h2><div class="status"><span class="dot"></span><b>Votre demande est en cours de traitement</b><p>Nous recherchons actuellement un artisan vérifié disponible près de votre zone.</p></div><div class="card"><b>🔎 Recherche en cours</b><p>Les artisans compatibles sont identifiés.</p></div><button onclick="go('s7')">Voir la recherche</button></section>
-<section id="s7" class="screen"><div class="top"><button class="back" onclick="go('s6')">‹</button><h2>Recherche d’un artisan</h2></div><div class="card"><span class="pill">Vérifié</span><h3>Réparateur de pompe</h3><p>📍 Zone compatible</p><p>📨 Artisan contacté</p><p>En attente de réponse — maximum 10 min.</p></div><div class="card"><b>🔄 Si nécessaire</b><p>Refus, indisponibilité ou expiration : LINKA contacte automatiquement le suivant.</p></div><button onclick="go('s8')">Simulation : artisan trouvé</button></section>
-<section id="s8" class="screen"><h2>Artisan disponible</h2><div class="status"><span class="dot"></span><b>Nous avons trouvé un artisan correspondant.</b></div><div class="card"><h3>Artisan vérifié</h3><p>Réparateur de pompe</p><p>📍 Secteur proche de votre zone</p><span class="pill">Disponible</span></div><button>📞 Appeler</button><button class="alt">💬 WhatsApp</button><button class="alt" onclick="go('s9')">Simuler la fin d’intervention</button></section>
+<section id="s5" class="screen"><div class="top"><button class="back" onclick="go('s4')">‹</button><h2>Votre zone</h2></div><p>Indiquez où se trouve le besoin. Pas besoin d’activer le GPS.</p><div class="field"><b>Ville</b><br><input id="city" value="Ouagadougou" style="border:0;outline:0;width:100%;font:inherit"></div><div class="field"><b>Quartier / secteur</b><br><input id="area" value="Karpala" style="border:0;outline:0;width:100%;font:inherit"></div><div class="field"><b>Adresse ou repère</b><br><input id="landmark" placeholder="Optionnel" style="border:0;outline:0;width:100%;font:inherit"></div><button onclick="submitRequest()">Envoyer ma demande</button></section>
+<section id="s6" class="screen"><h2>Demande reçue</h2><div class="status"><span class="dot"></span><b>Votre demande est en cours de traitement</b><p>Nous recherchons actuellement un artisan vérifié disponible près de votre zone.</p></div><div id="summary" class="request-summary"></div><div class="progress"><i id="bar"></i></div><div class="card"><b>🔎 Recherche en cours</b><p>Les artisans compatibles sont identifiés selon les règles de LINKA.</p></div><button onclick="startSearch()">Continuer la recherche</button><div class="demo">Prototype fonctionnel — données d’artisans simulées.</div></section>
+<section id="s7" class="screen"><div class="top"><button class="back" onclick="go('s6')">‹</button><h2>Recherche d’un artisan</h2></div><div id="searchCard" class="card"><span class="pill">Vérifié</span><h3>Recherche en cours…</h3><p>LINKA recherche un artisan correspondant à votre métier, votre zone et votre disponibilité.</p></div><div class="card"><b>⏱️ Règle LINKA</b><p>Un seul artisan est contacté à la fois. Après 10 minutes sans réponse, la demande passe au suivant.</p></div><button id="foundBtn" onclick="go('s8')" style="display:none">Voir l’artisan disponible</button></section>
+<section id="s8" class="screen"><h2>Artisan disponible</h2><div class="status"><span class="dot"></span><b>Nous avons trouvé un artisan correspondant.</b><p>Les coordonnées de contact seront affichées ici lorsqu’un artisan réel sera connecté à LINKA.</p></div><div class="card"><h3>Artisan vérifié</h3><p id="foundTrade">Professionnel correspondant</p><p>📍 Proche de votre zone</p><span class="pill">Disponible</span></div><button disabled style="opacity:.55">📞 Appeler — bientôt disponible</button><button class="alt" disabled style="opacity:.55">💬 WhatsApp — bientôt disponible</button><button class="alt" onclick="go('s9')">Simuler la fin d’intervention</button></section>
 <section id="s9" class="screen"><h2>Intervention terminée ?</h2><p>Votre retour nous aide à suivre la qualité du service.</p><button onclick="go('s10')">Oui, intervention terminée</button><button class="alt">Non, signaler un problème</button></section>
 <section id="s10" class="screen"><h2>Votre avis</h2><p>Comment s’est passée l’intervention ?</p><div class="stars">★★★★★</div><div class="card"><b>Quelques éléments</b><p>Artisan arrivé comme prévu ?</p><p>Problème résolu ?</p><p>Professionnel ?</p></div><button onclick="go('s1')">Terminer</button></section>
 </div>
 <script>
+let request={need:"",city:"",area:"",landmark:"",trade:"Professionnel correspondant"};
 function go(id){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active')}
-function voice(){document.getElementById('need').value="J’ai besoin d’un réparateur de pompe à Karpala pour aujourd’hui.";alert("Prototype : la vraie saisie vocale sera connectée lors de l’étape technique.")}
+function voice(){document.getElementById('need').value="J’ai besoin d’un réparateur de pompe à Karpala pour aujourd’hui."}
+function extractTrade(text){const t=text.toLowerCase();if(t.includes("pompe"))return "Réparateur de pompe";if(t.includes("mécanicien"))return "Mécanicien";if(t.includes("électricien"))return "Électricien";if(t.includes("plombier"))return "Plombier";if(t.includes("maçon"))return "Maçon";return "Professionnel correspondant"}
+function submitRequest(){
+ request.need=document.getElementById('need').value.trim()||"Besoin non précisé";
+ request.city=document.getElementById('city').value.trim()||"Non précisée";
+ request.area=document.getElementById('area').value.trim()||"Non précisée";
+ request.landmark=document.getElementById('landmark').value.trim();
+ request.trade=extractTrade(request.need);
+ document.getElementById('summary').innerHTML="<strong>"+request.trade+"</strong><br>"+request.need+"<br>📍 "+request.city+" — "+request.area+(request.landmark?" — "+request.landmark:"");
+ document.getElementById('foundTrade').textContent=request.trade;
+ go('s6');
+}
+function startSearch(){
+ document.getElementById('bar').style.width="35%";
+ go('s7');
+ const card=document.getElementById('searchCard');
+ card.innerHTML='<span class="pill">Vérification</span><h3>Artisans compatibles recherchés</h3><p>Métier : '+request.trade+'<br>Zone : '+request.area+'</p>';
+ setTimeout(()=>{document.getElementById('bar').style.width="70%";card.innerHTML='<span class="pill">Artisan contacté</span><h3>'+request.trade+'</h3><p>📍 Zone compatible</p><p>📨 Premier artisan contacté</p><p>⏱️ Attente de réponse — maximum 10 min.</p>';},700);
+ setTimeout(()=>{document.getElementById('bar').style.width="100%";card.innerHTML='<span class="pill">Correspondance trouvée</span><h3>'+request.trade+'</h3><p>📍 Artisan compatible et disponible.</p><p>Cette simulation représente le passage à l’artisan trouvé.</p>';document.getElementById('foundBtn').style.display="block";},1800);
+}
 </script>
 </body>
 </html>
